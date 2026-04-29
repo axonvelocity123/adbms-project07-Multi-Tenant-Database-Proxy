@@ -1,0 +1,13 @@
+{
+  "name": "multitenant-proxy",
+  "version": "1.0.0",
+  "description": "Multi-Tenant Database Proxy for ADBMS Project 02",
+  "main": "src/proxy.js",
+  "scripts": {
+    "start": "node src/proxy.js",
+    "cli": "node cli/client.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3"
+  }
+}
