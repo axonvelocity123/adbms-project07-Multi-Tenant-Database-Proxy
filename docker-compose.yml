@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB:       mydb
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  proxy:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "6000:6000"
+    environment:
+      PROXY_BACKEND_HOST: postgres
+      PROXY_BACKEND_PORT: 5432
+      PROXY_BACKEND_USER: postgres
+      PROXY_BACKEND_PASS: secret
+      PROXY_BACKEND_DB:   mydb
+    volumes:
+      - ./tenants.conf:/app/tenants.conf:ro
+    command: >
+      node src/proxy.js
+        --port 6000
+        --backend postgres:5432
+        --backend-user postgres
+        --backend-password secret
+        --backend-db mydb
+        --tenants /app/tenants.conf
